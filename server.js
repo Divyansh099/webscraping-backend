@@ -31,6 +31,18 @@ app.post('/scrape', async (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+});
+
+server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Trying a different port...`);
+        const newPort = PORT + 1;
+        app.listen(newPort, () => {
+            console.log(`Server running on port ${newPort}`);
+        });
+    } else {
+        console.error('Server error:', error);
+    }
 });
