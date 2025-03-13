@@ -25,7 +25,8 @@ app.post('/scrape', async (req, res) => {
         const scrapedData = await scrapeWebsite(url);
         res.json({ message: 'Scraping successful', data: scrapedData });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to scrape website' });
+        console.error('Error scraping website:', error); // Log the error details
+        res.status(500).json({ error: 'Failed to scrape website', details: error.message });
     }
 });
 
