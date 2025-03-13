@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const scrapeWebsite = require('./scraper');
@@ -26,11 +25,24 @@ app.post('/scrape', async (req, res) => {
         const scrapedData = await scrapeWebsite(url);
         res.json({ message: 'Scraping successful', data: scrapedData });
     } catch (error) {
-        res.status(500).json({ error: 'Failed to scrape website' });
+        console.error('Error scraping website:', error); // Log the error details
+        res.status(500).json({ error: 'Failed to scrape website', details: error.message });
     }
 });
 
 // Start Server
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+});
+
+server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Trying a different port...`);
+        const newPort = PORT + 1;
+        app.listen(newPort, () => {
+            console.log(`Server running on port ${newPort}`);
+        });
+    } else {
+        console.error('Server error:', error);
+    }
 });
