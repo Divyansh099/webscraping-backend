@@ -31,18 +31,24 @@ app.post('/scrape', async (req, res) => {
 });
 
 // Start Server
-const server = app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+const startServer = (port) => {
+    const server = app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
 
-server.on('error', (error) => {
-    if (error.code === 'EADDRINUSE') {
-        console.error(`Port ${PORT} is already in use. Trying a different port...`);
-        const newPort = PORT + 1;
-        app.listen(newPort, () => {
-            console.log(`Server running on port ${newPort}`);
-        });
-    } else {
-        console.error('Server error:', error);
-    }
-});
+    server.on('error', (error) => {
+        if (error.code === 'EADDRINUSE') {
+            console.error(`Port ${port} is already in use. Trying a different port...`);
+            const newPort = port + 1;
+            if (newPort < 65536) {
+                startServer(newPort);
+            } else {
+                console.error('No available ports in the valid range.');
+            }
+        } else {
+            console.error('Server error:', error);
+        }
+    });
+};
+
+startServer(PORT);
